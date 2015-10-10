@@ -57,8 +57,6 @@ import org.tyrannyofheaven.bukkit.util.ToHFileUtils;
 import org.tyrannyofheaven.bukkit.util.ToHNamingConvention;
 import org.tyrannyofheaven.bukkit.util.ToHSchemaVersion;
 import org.tyrannyofheaven.bukkit.util.ToHStringUtils;
-import org.tyrannyofheaven.bukkit.util.ToHUtils;
-import org.tyrannyofheaven.bukkit.util.VersionInfo;
 import org.tyrannyofheaven.bukkit.util.command.CommandExceptionHandler;
 import org.tyrannyofheaven.bukkit.util.command.ToHCommandExecutor;
 import org.tyrannyofheaven.bukkit.util.transaction.TransactionCallback;
@@ -203,7 +201,8 @@ public class ZPermissionsPlugin extends JavaPlugin implements ZPermissionsCore, 
     private static final int DEFAULT_SEARCH_DELAY = 5;
 
     // Version info (may include build number)
-    private VersionInfo versionInfo;
+//    private VersionInfo versionInfo;
+    private String versionString;
 
     // Permission resolver
     private PermissionsResolver resolver = new PermissionsResolver(this);
@@ -365,7 +364,8 @@ public class ZPermissionsPlugin extends JavaPlugin implements ZPermissionsCore, 
 
     @Override
     public void onLoad() {
-        versionInfo = ToHUtils.getVersion(this);
+	versionString = getDescription().getVersion();
+//        versionInfo = ToHUtils.getVersion(this);
     }
 
     /* (non-Javadoc)
@@ -398,7 +398,7 @@ public class ZPermissionsPlugin extends JavaPlugin implements ZPermissionsCore, 
             removeBukkitPermissions(player, true);
         }
 
-        log(this, "%s disabled.", versionInfo.getVersionString());
+        log(this, "%s disabled.", versionString);//versionInfo.getVersionString());
     }
 
     /* (non-Javadoc)
@@ -407,7 +407,7 @@ public class ZPermissionsPlugin extends JavaPlugin implements ZPermissionsCore, 
     @Override
     public void onEnable() {
         try {
-            log(this, "%s starting...", versionInfo.getVersionString());
+            log(this, "%s starting...", versionString);//versionInfo.getVersionString());
 
             // FIXME Defaults workaround, to be removed after 1.0
             boolean isUpgrade = new File(getDataFolder(), "config.yml").exists();
@@ -536,10 +536,11 @@ public class ZPermissionsPlugin extends JavaPlugin implements ZPermissionsCore, 
 
             if (nativeVaultBridges && Bukkit.getPluginManager().getPlugin("Vault") != null) {
                 // Set up Vault bridges
-                new VaultPermissionBridge(this, storageStrategy, getZPermissionsCore(), service, getZPermissionsConfig()).register();
+        	new VaultPermissionBridge(this, getResolver(), storageStrategy, getZPermissionsCore(), service, getZPermissionsConfig()).register();
                 log(this, "Installed native Vault Permissions bridge");
                 PlayerPrefixHandler prefixHandler = new DefaultPlayerPrefixHandler(service, getZPermissionsConfig());
                 new VaultChatBridge(this, getZPermissionsCore(), storageStrategy, service, getZPermissionsConfig(), prefixHandler).register();
+//                new VaultChatBridge(this, getZPermissionsCore(), storageStrategy, service, getZPermissionsConfig(), prefixHandler).register();
                 log(this, "Installed native Vault Chat bridge");
             }
 
@@ -555,7 +556,7 @@ public class ZPermissionsPlugin extends JavaPlugin implements ZPermissionsCore, 
             // Initialize expiration handler
             refreshExpirations();
             
-            log(this, "%s enabled.", versionInfo.getVersionString());
+            log(this, "%s enabled.", versionString);// versionInfo.getVersionString());
         }
         catch (Exception e) {
             unrecoverableError("everything else", e);
